@@ -14,7 +14,7 @@ I see this as a three-step project:
 
 1) Build the necessary architecture / pipeline. I'm still figuring out exactly what this means. I originally thought I'd use the KGS API and set up a bot that can play with other bots (once it's trained). I have a protocol set up that points to another bot (GnuGo) and has that play on KGS, so it could be possible to point it at my bot once it's built. It seems like this might be finicky though, so I'm leaning towards interacting with a bot via the command line (that's my fallback).
 
-2) Compose two CNNS - one to predict the next best move from a given state (although the website Damien mentioned might provide a convenient shortcut or starting point for this), and another to predict the score / winner based on a given state. I need to first convert a game state into something a CNN can interpret though.
+2) Compose two CNNs - one to predict the next best move from a given state (although the website Damien mentioned might provide a convenient shortcut or starting point for this), and another to predict the score / winner based on a given state. I need to first convert a game state into something a CNN can interpret though.
 
 3) Use the data I collect to train my models. Once all this is done, I can ideally have my bot log into KGS and play other bots to continue training. I may need to fall back to utilizing the terminal bot. The problem with the fallback is that GnuGo (the terminal bot) isn't very strong, so I worry about contaminating my training data with fodder. This might be an unavoidable problem for this project, though.
 
