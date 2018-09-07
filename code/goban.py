@@ -1,3 +1,5 @@
+# Attempt at encoding game states as classes, deprecated
+
 import numpy as np
 
 class Stone:

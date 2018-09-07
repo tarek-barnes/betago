@@ -1,3 +1,5 @@
+# Canonical game states primarily for testing floodfill re: removing dead stones
+
 import get_final_game_state as fg
 
 def get_all_examples():
