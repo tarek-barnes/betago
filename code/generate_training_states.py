@@ -1,90 +1,86 @@
 # For jgdp dataset, generate tuples of input/output game states for position k (randomly chosen) for policy network
 
+from get_game_state import *
+import numpy as np
 import pickle
 import random
-import numpy as np
-from get_game_state import *
 
-path = "../games/jgdb/"
-MIN_MOVES = 30 #?
+PATH = "../games/jgdb/"
 
-def get_list_filenames(path):
-    new_path = path + "train.txt"
+
+def get_filenames(PATH):
+    new_path = PATH + "train.txt"
     f = open(new_path)
     data = f.read()
     filenames = data.split('\n')
-    filenames = [k.replace("./", path) for k in filenames]
+    filenames = [k.replace("./", PATH) for k in filenames]
     return filenames
-
 
 def are_the_same(array_A, array_B):
     return (array_A == array_B).all()
 
+def are_too_close(total_moves, current_move, threshold):
+    return (total_moves - current_move) < threshold
 
-def generate_training_states(path):
-    def generate_random_state(filename):
+def get_random_state(filename):
+    try:
+        total_moves = len(get_game_record(filename))
+        if total_moves <= 5:
+            return False
+    except:
+        return False
+
+    threshold = 4
+    while True:
+        current_move = random.choice(range(total_moves))
+        if current_move % 2 != 0:  # ensure B
+            current_move -= 1
+        if are_too_close(total_moves, current_move, threshold):
+            current_move -= threshold
         try:
-            number_moves = len(get_game_record(filename))
-            if number_moves == 0:
-                return None
+            train, test = get_train_test_game_state(filename, current_move)
+            if not are_the_same(train, test):
+                return (total_moves, current_move, filename, train, test)
         except:
-            return None
-
-        attempts = 0
-        while True:
-            move_cap = random.choice(range(number_moves))
-            end_padding = 6
-            if move_cap % 2 != 0:
-                move_cap -= 1
-            if (number_moves - move_cap) < end_padding:
-                move_cap -= end_padding
-
-            try:
-                attempts += 1
-                train, test = get_train_test_game_state(filename, move_cap)
-                if not are_the_same(train, test):
-                    return (number_moves, move_cap, filename, train, test)
-                if counts > 10:
-                    return None
-            except:
-                return None
+            return False
 
 
-        # pass
+def generate_random_states(PATH):
+    filenames = get_filenames(PATH)
+    filenames = filenames[:10000]  # testing
+    training_states = list(map(get_random_state, filenames))
+    training_states = [k for k in training_states if k]
+    return training_states
 
-    # count = 0
-    # training_testing = []
-    training_filenames = get_list_filenames(path)
-    training_filenames = training_filenames[:50000]
-    training_testing = list(map(generate_random_state, training_filenames))
-    training_testing = [k for k in training_testing if k]
-    # for filename in training_filenames:
-    #     try:
-    #         total_moves = len(get_game_record(filename))
-    #         if total_moves == 0:  # Testing
-    #             pass
-    #         else:
-    #             move_cap = random.choice(range(total_moves))
-    #             while True:
-    #                 if (total_moves - move_cap) < 6:  # Testing
-    #                     move_cap = random.choice(range(total_moves))
-    #                 break
-    #             if move_cap % 2 != 0:
-    #                 move_cap -= 1
-    #             try:
-    #                 if not get_train_test_game_state(filename, move_cap):  # Testing
-    #                     pass
-    #                 else:
-    #                     train, test = get_train_test_game_state(filename, move_cap)
-    #                     count += 1
-    #                     print(f"OK-{count}, filename-{filename}, movecap-{move_cap}")
-    #                     training_testing.append((train,test))
-    #             except ValueError:
-    #                 pass
-    #     except (ValueError, KeyError):
-    #         pass
-    return training_testing
+
+def flatten_Y_array(X_array, Y_array):
+    delta = Y_array - X_array
+    Y_row = [k for k in range(len(delta)) if 1 in delta[k]][0]
+    Y_col = int(np.where(delta[Y_row] == 1)[0])
+    x, y = (Y_row+1, Y_col+1)
+    return ((x - 1) * 19 + y)
+
+
+def generate_training_states(PATH):
+    training_states = generate_random_states(PATH)
+
+    state_info, X_arrays, Y_arrays = [], [], []
+    for entry in training_states:
+        total_moves, current_move, filename, X_array, Y_array = entry
+        try:
+            Y_arrays.append(flatten_Y_array(X_array, Y_array))
+            X_arrays.append(X_array)
+            state_info.append((total_moves, current_move, filename))
+        except:
+            pass
+    return list(zip(state_info, X_arrays, Y_arrays))
+
 #
-training_states = generate_training_states(path)
-with open("jgdb_train_example.pickle", "wb") as f:
+#
+
+training_states = generate_training_states(PATH)
+with open("jgdb_train_states.pickle", "wb") as f:
     pickle.dump(training_states, f)
+
+# print(generate_random_states(PATH))
+# print(generate_training_states(PATH))
