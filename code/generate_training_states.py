@@ -47,10 +47,60 @@ def get_random_state(filename):
 
 def generate_random_states(PATH):
     filenames = get_filenames(PATH)
-    filenames = filenames[:10000]  # testing
+    filenames = filenames[:100]  # testing
     training_states = list(map(get_random_state, filenames))
     training_states = [k for k in training_states if k]
     return training_states
+
+
+def get_board_rotations(train_state, test_state):
+    rotations = []
+    for k in range(2):
+        rotations.append((np.rot90(train_state), np.rot90(test_state)))
+    return rotations
+
+
+def get_game_states(filename):
+    try:
+        total_moves = len(get_game_record(filename))
+        if total_moves <= 5:
+            return False
+    except:
+        return False
+
+    many_states = []
+    step = 6
+    starting_move = 2
+    current_move = starting_move
+    while total_moves > (current_move + 4):
+        try:
+            train, test = get_train_test_game_state(filename, current_move)
+            if not are_the_same(train, test):
+                many_states.append((total_moves,
+                                    current_move,
+                                    filename,
+                                    train,
+                                    test))
+                for rotation in get_board_rotations(train, test):
+                    train_rotation, test_rotation = rotation
+                    many_states.append((total_moves,
+                                        current_move,
+                                        filename,
+                                        train_rotation,
+                                        test_rotation))
+            current_move += step
+        except:
+            return False
+    return many_states
+
+
+def generate_many_game_states(PATH):
+    filenames = get_filenames(PATH)
+    filenames = filenames[:100]  # testing
+    many_game_states = list(map(get_game_states, filenames))
+    many_game_states = [k for k in many_game_states if k]
+    many_game_states = [k for row in many_game_states for k in row]
+    return many_game_states
 
 
 def flatten_Y_array(X_array, Y_array):
@@ -61,11 +111,10 @@ def flatten_Y_array(X_array, Y_array):
     return ((x - 1) * 19 + y)
 
 
-def generate_training_states(PATH):
-    training_states = generate_random_states(PATH)
-
+# def generate_training_states(PATH, lst_of_states):
+def generate_training_states(lst_of_states):
     state_info, X_arrays, Y_arrays = [], [], []
-    for entry in training_states:
+    for entry in lst_of_states:
         total_moves, current_move, filename, X_array, Y_array = entry
         try:
             Y_arrays.append(flatten_Y_array(X_array, Y_array))
@@ -75,12 +124,12 @@ def generate_training_states(PATH):
             pass
     return list(zip(state_info, X_arrays, Y_arrays))
 
-#
-#
 
-training_states = generate_training_states(PATH)
-with open("jgdb_train_states.pickle", "wb") as f:
-    pickle.dump(training_states, f)
+# training_states = generate_training_states(PATH)
+# with open("jgdb_train_states.pickle", "wb") as f:
+#     pickle.dump(training_states, f)
 
 # print(generate_random_states(PATH))
 # print(generate_training_states(PATH))
+
+# print(generate_many_game_states(PATH)
