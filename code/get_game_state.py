@@ -107,7 +107,7 @@ def get_updated_game_record(file_name):
     game_record = get_game_record(file_name)
     if game_record == []:  # Testing
         return False
-    if game_record[0][0] != "B":
+    if game_record[0][0] != "B":  # Handicap game
         return "W starts this game, error."
 
     board = get_empty_board()
