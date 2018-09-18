@@ -3,7 +3,6 @@ from get_game_state import *
 import numpy as np
 
 PATH = "../games/jgdb/"
-# "../games/jgdb/sgf/train/0000/00000003.sgf"
 
 def get_file_names(PATH):
     new_path = PATH + "train.txt"
@@ -105,4 +104,5 @@ def generate_training_states(lst_of_states):
 def get_value_states():
     game_states = generate_many_game_states(PATH)
     training_states = generate_training_states(game_states)
-    return training_states
+    with open("value_train_states.pickle", "wb") as f:
+        pickle.dump(training_states, f)

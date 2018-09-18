@@ -1,6 +1,3 @@
-# Take a game record and convert it into a 2D numpy array
-# 0:1:2 ~ empty:black:white
-
 import numpy as np
 from get_game_record import *
 
@@ -158,6 +155,4 @@ def get_train_test_game_state(file_name, move_cap):
         play_stone(test_board, position, color)
         remove_dead_stones(test_board, position)
 
-        # if not (train_board == test_board).all():
-        #     break
     return (train_board, test_board)
