@@ -59,6 +59,7 @@ def remove_stone(board, position):
         return "There's no stone to remove"
 
 
+
 def get_neighbors(position):
     x,y = position
     naive_neighbors = [(x-1, y), (x+1, y),
@@ -66,8 +67,10 @@ def get_neighbors(position):
     return [k for k in naive_neighbors if is_on_board(k)]
 
 
+
 def opposing(color):
     return 3 - color
+
 
 
 def find_dead_stones(board, position):
@@ -93,11 +96,13 @@ def find_dead_stones(board, position):
     return dead_stones
 
 
+
 def remove_dead_stones(board, position):
     dead_stones = find_dead_stones(board, position)
     for stone in dead_stones:
         remove_stone(board, stone)
     return board
+
 
 
 def get_updated_game_record(file_name):
@@ -118,6 +123,7 @@ def get_updated_game_record(file_name):
     return updated_record
 
 
+
 def get_final_game_state(file_name):
     board = get_empty_board()
     updated_record = get_updated_game_record(file_name)
@@ -134,15 +140,14 @@ def get_final_game_state(file_name):
     return board
 
 
+
 def get_train_test_game_state(file_name, move_cap):
-    # while True:
     train_board = get_empty_board()
     test_board = get_empty_board()
     updated_record = get_updated_game_record(file_name)
     if not updated_record:  # Testing
         return False
 
-    # if move_cap is even, last move is W (0-indexed)
     train_record = updated_record[:move_cap]
     for record in train_record:
         color, position = record

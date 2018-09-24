@@ -1,6 +1,3 @@
-# Convert SGF (Go Game) -> list of moves as tuples: e.g. ("W", 4-18)
-# Top left corner is (1-1), bottom right is (19-19)
-
 import csv
 
 EMPTY = 0
@@ -12,6 +9,7 @@ def get_raw_game(file_name):
     raw_game = f.read()
     raw_game = str(raw_game)
     return raw_game
+
 
 
 def get_game_winner(file_name):
@@ -28,6 +26,7 @@ def get_game_winner(file_name):
         return WHITE
     else:
         return False
+
 
 
 def get_game_record(file_name):
